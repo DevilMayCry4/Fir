@@ -25,6 +25,11 @@ def register():
     else:
         return 'post'
 
+@app.after_request
+def add_header(response):
+    response.add_etag()
+    return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)
