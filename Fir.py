@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import render_template
+from flask import request
 import os
 
 app = Flask(__name__)
@@ -17,6 +18,12 @@ def about():
 def login():
      return render_template('login.html',name=None)
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        return  render_template('register.html')
+    else:
+        return 'post'
 
 
 if __name__ == '__main__':
