@@ -2,15 +2,23 @@ from flask import Flask
 from flask import render_template
 from flask import request
 import os
+from flask_login import LoginManager
+from flask_login import login_required
 
 app = Flask(__name__)
+app.secret_key = 'super secret string'
 data_base = os.path.dirname(os.path.abspath(__file__))
+login_manager = LoginManager()
+login_manager.login_view='login'
+login_manager.init_app(app)
 
 @app.route('/')
 def hello_world():
     return 'Hello World!'
 
+
 @app.route('/about')
+@login_required
 def about():
     return data_base
 
@@ -33,3 +41,4 @@ def add_header(response):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
