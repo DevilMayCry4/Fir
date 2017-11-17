@@ -25,4 +25,35 @@
             </form>
         </div>
     </div>
+    <script>
+    function startLogin() {
+         $.ajax({
+        url : "", // the endpoint
+        type : "POST", // http method
+        data : {
+            username : $('#username').val(),
+            password: $('#password').val()
+            }, // data sent with the post request
+
+        // handle a successful response
+        success : function(json) {
+            if(json['code']==1)
+            {
+                showAlert('登陆成功');
+                Cookies.set('token',json['token']);
+                setTimeout("javascript:location.href='../home'", 2000);
+            }
+            else
+            {
+            }
+
+        },
+
+        // handle a non-successful response
+        error : function(xhr,errmsg,err) {
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    });
+    }
+    </script>
 {% endblock %}
