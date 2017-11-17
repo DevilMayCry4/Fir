@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+    <div class="container">
+      <div class="alert alert-danger alert-dismissible fade hidden" role="alert">
+  <strong>Oh snap!</strong> Change a few things up and try submitting again.
+</div>
+    <button type="button" class="btn btn-danger" onclick="hidden()">Danger</button>
+    </div>
+    <script>function hidden() {
+        $().alert();
+    }</script>
+{% endblock %}

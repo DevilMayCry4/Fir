@@ -1,6 +1,8 @@
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask import jsonify
+
 from flask_login import login_user
 from flask_login import LoginManager
 from flask_login import login_required
@@ -12,8 +14,6 @@ app.secret_key = '2323432'
 login_manager = LoginManager()
 login_manager.login_view='login'
 login_manager.init_app(app)
-
-
 
 
 @app.teardown_appcontext
@@ -30,7 +30,7 @@ def hello_world():
 @app.route('/about')
 @login_required
 def about():
-    return 'login success'
+    return  render_template('about.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -39,8 +39,11 @@ def login():
     else:
         form = request.form
         user = User.getUser(form['username'],form['password'])
-        login_user(user)
-        return  'success'
+        if user != None:
+            login_user(user)
+            return  jsonify({'code':200})
+        else:
+            return  jsonify({'code':100})
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -58,9 +61,6 @@ def add_header(response):
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
-
-
-
 
 
 if __name__ == '__main__':
