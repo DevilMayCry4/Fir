@@ -43,7 +43,7 @@ def login():
             login_user(user)
             return  jsonify({'code':200})
         else:
-            return  jsonify({'code':100})
+            return  jsonify({'code':100,'msg':'账号密码错误'})
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
