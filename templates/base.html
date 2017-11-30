@@ -11,6 +11,28 @@
     <script src="{{ url_for('static', filename='js/commond.js') }}"></script>
 </head>
 <body>
+<nav class="navbar navbar-default" role="navigation">
+<div class="container-fluid">
+   <div class="nav navbar-nav navbar-right">
+        {% if user %}
+              <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.nickname }}<b class="caret"></b></a>
+               <ul class="dropdown-menu">
+                   <li><a  href="../home">首页</a></li>
+	              <li><a href="banner">编辑Banner</a></li>
+                     <li><a href="addgood">添加商品</a></li>
+	              <li><a href="#">账号信息</a></li>
+	              <li class="divider"></li>
+	              <li><a  onclick="logout()">注销</a></li>
+	           </ul>
+           </li>
+            {% else %}
+           <a type="button" class="btn btn-default navbar-btn btn-margin-left btn-margin-right" href="login" >
+         登录
+      </a>
+       {% endif %}
+   </div>
+</div>
+</nav>
 <div class="container">
 <div class="modal fade" id="alertModel" tabindex="-1" role="dialog"
      aria-labelledby="myModalLabel" aria-hidden="true">

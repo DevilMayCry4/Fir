@@ -4,7 +4,7 @@ from flask import g
 
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-DATABASE = os.path.join(current_dir,'data.db')
+DATABASE = os.path.join(current_dir,'data.sqlite')
 
 class DataBase(object):
     @staticmethod
@@ -30,3 +30,7 @@ class DataBase(object):
     @staticmethod
     def getUserWithId(user_id):
         return DataBase.query_db('select * from user where user_id = ?',args=(user_id,),one=True)
+
+    @staticmethod
+    def getAllApplication():
+        return DataBase.query_db('select *from app')

@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from flask_login import login_required
 from flask import g
 from User import User
+from DataBase import DataBase
 
 app = Flask(__name__)
 app.secret_key = '2323432'
@@ -23,9 +24,8 @@ def close_connection(exception):
         db.close()
 
 @app.route('/')
-def hello_world():
-    return 'Hello World!'
-
+def  home():
+    return str(DataBase.getAllApplication())
 
 @app.route('/about')
 @login_required
@@ -52,6 +52,15 @@ def register():
     else:
         return 'post'
 
+@app.route('/upload',methods=['GET','POST'])
+@login_required
+def upload():
+    if request.method == 'GET':
+        return render_template('upload.html')
+    else:
+        return  ''
+
+
 @app.after_request
 def add_header(response):
     response.add_etag()
@@ -65,4 +74,5 @@ def load_user(user_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # app.run(debug=True,ssl_context=('/Users/virgil/Desktop/test1/server.crt', '/Users/virgil/Desktop/test1/server.key'))
 

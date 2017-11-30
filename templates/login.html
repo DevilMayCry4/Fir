@@ -2,58 +2,55 @@
 {% block title %}登陆{% endblock %}
 {% block body %}
     <div class="alert alert-danger" style="display: none" id="alert_tip"></div>
-        <div class="row" style="margin-top: 20px">
-            <form class="form-horizontal col-12">
-                <!-- Registration form starts -->
-                <!-- Name -->
-                <div class="form-group ">
-                    <label class="control-label  " for="username">用户名</label>
-                    <input type="text" name="username" class="form-control" id="username">
-                </div>
+    <div class="row" style="margin-top: 20px">
+        <form class="form-horizontal col-12">
+            <!-- Registration form starts -->
+            <!-- Name -->
+            <div class="form-group ">
+                <label class="control-label  " for="username">用户名</label>
+                <input type="text" name="username" class="form-control" id="username">
+            </div>
 
-                <!-- Password -->
-                <div class="form-group">
-                    <label class="control-label" for="password">密码</label>
-                    <input type="password" name="password" class="form-control" id="password">
-                </div>
+            <!-- Password -->
+            <div class="form-group">
+                <label class="control-label" for="password">密码</label>
+                <input type="password" name="password" class="form-control" id="password">
+            </div>
 
-                <!-- loginbutton -->
-                <a onclick="startLogin()" class="btn btn-primary btn-lg btn-block text-white">登陆</a>
-                <br>
-                <a href="../register" class="btn btn btn-info btn-lg btn-block">注册</a>
+            <!-- loginbutton -->
+            <a onclick="startLogin()" class="btn btn-primary btn-lg btn-block text-white">登陆</a>
+            <br>
+            <a href="../register" class="btn btn btn-info btn-lg btn-block">注册</a>
 
-            </form>
-        </div>
+        </form>
+    </div>
     <script>
-    function startLogin() {
-         $.ajax({
-        url : "", // the endpoint
-        type : "POST", // http method
-        data : {
-            username : $('#username').val(),
-            password: $('#password').val()
-            }, // data sent with the post request
+        function startLogin() {
+            $.ajax({
+                url: "", // the endpoint
+                type: "POST", // http method
+                data: {
+                    username: $('#username').val(),
+                    password: $('#password').val()
+                }, // data sent with the post request
 
-        // handle a successful response
-        success : function(json) {
-            if(json['code']==1)
-            {
-                showAlert('登陆成功');
-                Cookies.set('token',json['token']);
-                setTimeout("javascript:location.href='../home'", 2000);
-            }
-            else
-            {
-                showAlert(json.msg);
-            }
+                // handle a successful response
+                success: function (json) {
+                    if (json['code'] == 1) {
+                        showAlert('登陆成功');
+                        setTimeout("javascript:location.href='../home'", 2000);
+                    }
+                    else {
+                        showAlert(json.msg);
+                    }
 
-        },
+                },
 
-        // handle a non-successful response
-        error : function(xhr,errmsg,err) {
-            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                // handle a non-successful response
+                error: function (xhr, errmsg, err) {
+                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                }
+            });
         }
-    });
-    }
     </script>
 {% endblock %}
