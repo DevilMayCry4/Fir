@@ -24,6 +24,7 @@ def close_connection(exception):
         db.close()
 
 @app.route('/')
+@app.route('/home')
 def  home():
     return str(DataBase.getAllApplication())
 
@@ -35,7 +36,7 @@ def about():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-     return render_template('login.html',name=None)
+     return render_template('login.html',hiddenLoginButton=True)
     else:
         form = request.form
         user = User.getUser(form['username'],form['password'])
@@ -48,9 +49,18 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        return  render_template('register.html')
+        return  render_template('register.html',hiddenLoginButton=True)
     else:
-        return 'post'
+        form = request.form
+        username = form['username']
+        password = form['password']
+        isExist = User.findUser(username)
+        if isExist:
+            return jsonify({'code': 100,'msg':'账号已被注册'})
+        else:
+            User.register(username=username,password=password)
+            return jsonify({'code': 200, 'msg': '注册成功'})
+
 
 @app.route('/upload',methods=['GET','POST'])
 @login_required
@@ -59,12 +69,6 @@ def upload():
         return render_template('upload.html')
     else:
         return  ''
-
-
-@app.after_request
-def add_header(response):
-    response.add_etag()
-    return response
 
 
 @login_manager.user_loader

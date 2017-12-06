@@ -9,6 +9,10 @@ class User(UserMixin):
         return self.user_id
 
     @staticmethod
+    def register(username,password):
+        return DataBase.register(username=username,password=password)
+
+    @staticmethod
     def get(user_id):
         return User.getUserFromResult(DataBase.getUserWithId(user_id))
 
@@ -16,6 +20,10 @@ class User(UserMixin):
     def getUser(name,password):
         r = DataBase.getUser(name,password)
         return User.getUserFromResult(r)
+
+    @staticmethod
+    def findUser(username):
+        return DataBase.findUser(username)
 
     @staticmethod
     def getUserFromResult(r):

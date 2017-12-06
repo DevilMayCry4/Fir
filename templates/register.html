@@ -19,18 +19,18 @@
                                         <label class="control-label" for="username">用户名</label>
                                         <input type="text" class="form-control" id="username" name="username">
 
-                                    </div>
-                                    <!-- Email -->
-                                    <div class="form-group">
-                                        <label class="control-label" for="email">邮箱</label>
-                                            <input type="text" class="form-control" id="email" name="email">
-                                    </div>
-
-                                    <!-- Username -->
-                                    <div class="form-group">
-                                        <label class="control-label" for="nickname">昵称</label>
-                                            <input type="text" class="form-control" id="nickname" name="nickname">
-                                    </div>
+{#                                    </div>#}
+{#                                    <!-- Email -->#}
+{#                                    <div class="form-group">#}
+{#                                        <label class="control-label" for="email">邮箱</label>#}
+{#                                            <input type="text" class="form-control" id="email" name="email">#}
+{#                                    </div>#}
+{##}
+{#                                    <!-- Username -->#}
+{#                                    <div class="form-group">#}
+{#                                        <label class="control-label" for="nickname">昵称</label>#}
+{#                                            <input type="text" class="form-control" id="nickname" name="nickname">#}
+{#                                    </div>#}
                                     <!-- Password -->
                                     <div class="form-group">
                                         <label class="control-label  " for="password">密码</label>
@@ -66,5 +66,53 @@
     </div>
      <script>function gotoLogin(){
         window.location.href = 'login';
-    }</script>
+    }
+     function startRegiter() {
+           let username = $('#username').val();
+           let password = $('#password').val();
+           let password2 = $('#password2').val();
+           if(username == undefined || username.length == 0){
+               showAlert('请输入账户名');
+               return;
+           }else  if(password == undefined || password.length == 0){
+               showAlert('请输入密码');
+               return;
+           }else if(password !== password2){
+               showAlert('请输入相同的密码');
+               return;
+           }else if(password.length > 50){
+               showAlert('密码太长');
+               return
+           }else if(username.length > 50){
+               showAlert('用户名太长');
+               return;
+           }
+
+            $.ajax({
+                url: "", // the endpoint
+                type: "POST", // http method
+                data: {
+                    username:username,
+                    password: password,
+                }, // data sent with the post request
+
+                // handle a successful response
+                success: function (json) {
+                    if (json['code'] == 1) {
+                        showAlert('登陆成功');
+                        setTimeout("javascript:location.href='../home'", 2000);
+                    }
+                    else {
+                        showAlert(json.msg);
+                    }
+
+                },
+
+                // handle a non-successful response
+                error: function (xhr, errmsg, err) {
+                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                }
+            });
+        }
+     </script>
 {% endblock %}

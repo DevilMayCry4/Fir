@@ -1,5 +1,50 @@
 {% extends "base.html" %}
 {% block title %}上传{% endblock %}
-{% block body %}
 
+{% block head %}
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/fileinput.min.css') }}"/>
+    <script src="{{ url_for('static', filename='js/fileinput.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/fileinput_locale_zh.js') }}"></script>
+{% endblock %}
+{% block body %}
+<div class="alert alert-danger" style="display: none" id="alert_tip"></div>
+ <div class="container">
+    <br>
+    <label class="control-label">填写url地址</label>
+    <input type="text" class="form-control" placeholder="填写要打开的url地址" id="input_url">
+    <br>
+<label class="control-label">选择图片</label>
+<input id="input" type="file" class="file">
+<script>
+    $("#input").fileinput({
+    language: "zh",
+    uploadUrl: "upload",
+    allowedFileExtensions: ["jpg", "png", "gif","jpeg"],
+         uploadExtraData: function() {  // callback example
+        var out = {};
+        out['url'] = $('#input_url').val();
+        return out;
+    }
+}).on('filebatchpreupload', function(event, data) {
+        if($('#input_url').val() == ''){
+            string = "请输入url地址!";
+            return {
+            message: string,
+            data:{}
+        };
+        }else{
+            showLoadingModal(true);
+        }
+
+}).on('fileuploaded', function(event, data) {
+        showLoadingModal(false);
+    if(data.response.code == 0){
+        showAlert(data.response.msg);
+    }
+     else{
+       window.location.href = "../banner";
+    }
+});;
+</script>
+    </div>
 {% endblock %}

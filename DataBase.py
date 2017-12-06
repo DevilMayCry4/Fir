@@ -23,8 +23,13 @@ class DataBase(object):
         return (rv[0] if rv else None) if one else rv
 
     @staticmethod
+    def excute_db(query,args=()):
+        DataBase.get_db().execute(query, args)
+        DataBase.get_db().commit()
+
+    @staticmethod
     def getUser(name, password):
-        return DataBase.query_db('select * from user where name = (?) and password = (?)' ,args=(name,password),one=True)
+        return DataBase.query_db('select * from user where username = (?) and password = (?)' ,args=(name,password),one=True)
 
 
     @staticmethod
@@ -34,3 +39,11 @@ class DataBase(object):
     @staticmethod
     def getAllApplication():
         return DataBase.query_db('select *from app')
+
+    @staticmethod
+    def findUser(name):
+         return DataBase.query_db('select *from user where username= (?)',args=(name,),one=True) != None
+
+    @staticmethod
+    def register(username,password):
+        return DataBase.excute_db('insert into user (username,password) values (?,?)',args=(username,password))
