@@ -30,8 +30,8 @@ class User(UserMixin):
         if r != None:
             user = User()
             user.user_id = r[0]
-            user.name = r[1]
-            user.email = r[2]
+            user.username = r[1]
+            user.password = r[2]
             return user
         else:
             return r

@@ -6,6 +6,7 @@ from flask import jsonify
 from flask_login import login_user
 from flask_login import LoginManager
 from flask_login import login_required
+from flask_login import current_user
 from flask import g
 from User import User
 from DataBase import DataBase
@@ -66,7 +67,7 @@ def register():
 @login_required
 def upload():
     if request.method == 'GET':
-        return render_template('upload.html')
+        return render_template('upload.html',user=current_user)
     else:
         return  ''
 
