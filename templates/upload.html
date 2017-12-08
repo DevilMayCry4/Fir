@@ -5,6 +5,9 @@
     <script src="{{ url_for('static', filename='js/fileinput.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fileinput_locale_zh.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jszip.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plist.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/convert.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/xoyip-bplist-parser.js') }}"></script>
 {% endblock %}
 {% block body %}
     <div class="alert alert-danger" style="display: none" id="alert_tip"></div>
@@ -21,8 +24,26 @@
                 var new_zip = new JSZip();
                 new_zip.loadAsync(data.reader.result)
                     .then(function (zip) {
-                        console.log(zip);
+                        let regex = new RegExp('.\.app/Info\.plist');
+                        let plistKey = undefined;
+                        for (let key in zip.files) {
+                            if (regex.test(key)) {
+                                console.log(key);
+                                plistKey = key;
+                                break;
+                            }
+                        }
+                        if (plistKey !== undefined) {
+                            return zip.file(plistKey).async("string");
+                        }
+
+                    }).then(function (text) {
+                    let i = parseFile(text.toArrayBuffer(),()=>{
+
                     });
+                    let t = plist.parse(text);
+                    console.log(text);
+                });
 
             }).on('fileuploaded', function (event, data) {
                 showLoadingModal(false);
