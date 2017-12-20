@@ -1,0 +1,4 @@
+biplist==1.0.3
+Jinja2==2.9.5
+sqlite3==
+Flask_Login==0.4.0

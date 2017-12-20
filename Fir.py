@@ -10,11 +10,19 @@ from flask_login import current_user
 from flask import g
 from User import User
 from DataBase import DataBase
+import os
+from werkzeug.utils import secure_filename
+
+from biplist import *
+import base64
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+UploadDir = os.path.join(os.path.join(current_dir,'static'),'data.sqlite')
 
 app = Flask(__name__)
 app.secret_key = '2323432'
 login_manager = LoginManager()
-login_manager.login_view='login'
+login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 
@@ -24,52 +32,72 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+
 @app.route('/')
 @app.route('/home')
-def  home():
+def home():
     return str(DataBase.getAllApplication())
+
 
 @app.route('/about')
 @login_required
 def about():
-    return  render_template('about.html')
+    return render_template('about.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-     return render_template('login.html',hiddenLoginButton=True)
+        return render_template('login.html', hiddenLoginButton=True)
     else:
         form = request.form
-        user = User.getUser(form['username'],form['password'])
+        user = User.getUser(form['username'], form['password'])
         if user != None:
             login_user(user)
-            return  jsonify({'code':200})
+            return jsonify({'code': 200})
         else:
-            return  jsonify({'code':100,'msg':'账号密码错误'})
+            return jsonify({'code': 100, 'msg': '账号密码错误'})
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        return  render_template('register.html',hiddenLoginButton=True)
+        return render_template('register.html', hiddenLoginButton=True)
     else:
         form = request.form
         username = form['username']
         password = form['password']
         isExist = User.findUser(username)
         if isExist:
-            return jsonify({'code': 100,'msg':'账号已被注册'})
+            return jsonify({'code': 100, 'msg': '账号已被注册'})
         else:
-            User.register(username=username,password=password)
+            User.register(username=username, password=password)
             return jsonify({'code': 200, 'msg': '注册成功'})
 
 
-@app.route('/upload',methods=['GET','POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
     if request.method == 'GET':
-        return render_template('upload.html',user=current_user)
+        return render_template('upload.html', user=current_user)
     else:
-        return  ''
+        file = request.files[0]
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(UploadDir,filename))
+        return  jsonify({'code': 200, 'msg': '上传成功'})
+
+
+@app.route('/parse', methods=['POST'])
+@login_required
+def parse():
+    form = request.form
+    content = form['content']
+    i = readPlistFromString(base64.b64decode(content))
+
+    return jsonify({'code': 200,
+                    'CFBundleDisplayName': i['CFBundleDisplayName'],
+                    'CFBundleShortVersionString': i['CFBundleShortVersionString'],
+                    'CFBundleVersion':i['CFBundleVersion']})
 
 
 @login_manager.user_loader
@@ -80,4 +108,3 @@ def load_user(user_id):
 if __name__ == '__main__':
     app.run(debug=True)
     # app.run(debug=True,ssl_context=('/Users/virgil/Desktop/test1/server.crt', '/Users/virgil/Desktop/test1/server.key'))
-

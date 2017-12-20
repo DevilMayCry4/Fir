@@ -5,9 +5,6 @@
     <script src="{{ url_for('static', filename='js/fileinput.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fileinput_locale_zh.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jszip.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/plist.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/convert.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/xoyip-bplist-parser.js') }}"></script>
 {% endblock %}
 {% block body %}
     <div class="alert alert-danger" style="display: none" id="alert_tip"></div>
@@ -16,43 +13,76 @@
         <label class="control-label">选择文件</label>
         <input id="input" type="file" class="file">
         <script>
-            $("#input").fileinput({
+            let uploadInput = $("#input");
+            uploadInput.fileinput({
                 language: "zh",
                 uploadUrl: "upload",
-                allowedFileExtensions: ["ipa", "apk"]
-            }).on('filebatchpreupload', function (event, data) {
-                var new_zip = new JSZip();
-                new_zip.loadAsync(data.reader.result)
-                    .then(function (zip) {
-                        let regex = new RegExp('.\.app/Info\.plist');
-                        let plistKey = undefined;
-                        for (let key in zip.files) {
-                            if (regex.test(key)) {
-                                console.log(key);
-                                plistKey = key;
-                                break;
+                allowedFileExtensions: ["ipa", "apk"],
+                uploadAsync: false,
+                showUpload: false, // hide upload button
+                showRemove: false, // hide remove button
+                minFileCount: 1,
+                maxFileCount: 1
+            }).on('filebatchselected', function (event, files) {
+
+                var file = files[0];
+                var start = 0;
+                var stop = file.size - 1;
+
+                var reader = new FileReader();
+
+                // If we use onloadend, we need to check the readyState.
+                reader.onloadend = function (evt) {
+                    if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+                        var new_zip = new JSZip();
+                        new_zip.loadAsync(evt.srcElement.result).then(function (zip) {
+                            let regex = new RegExp('.\.app/Info\.plist');
+                            let plistKey = undefined;
+                            for (let key in zip.files) {
+                                if (regex.test(key)) {
+                                    plistKey = key;
+                                    break;
+                                }
                             }
-                        }
-                        if (plistKey !== undefined) {
-                            return zip.file(plistKey).async("string");
-                        }
+                            if (plistKey !== undefined) {
+                                return zip.file(plistKey).async("base64");
+                            }
 
-                    }).then(function (text) {
-                    let i = parseFile(text.toArrayBuffer(),()=>{
+                        }).then(function (plist) {
+                            $.ajax({
+                                url: "./parse", // the endpoint
+                                type: "POST", // http method
+                                data: {
+                                    content: plist,
+                                    platom: 'ios'
+                                }, // data sent with the post request
 
-                    });
-                    let t = plist.parse(text);
-                    console.log(text);
-                });
+                                // handle a successful response
+                                success: function (json) {
+                                    if (json['code'] == 200) {
+                                        uploadInput.fileinput("upload");
+                                    }
+                                    else {
+                                        showAlert(json.msg);
+                                    }
 
-            }).on('fileuploaded', function (event, data) {
-                showLoadingModal(false);
-                if (data.response.code != 200) {
-                    showAlert(data.response.msg);
-                }
-                else {
-                    window.location.href = "../banner";
-                }
+                                },
+
+                                // handle a non-successful response
+                                error: function (xhr, errmsg, err) {
+                                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                                }
+                            });
+                        }).catch((r) => {
+                            showAlert('解析ipa失败');
+                        });
+                    }
+                };
+
+
+                reader.readAsBinaryString(file);
+
+
             });
         </script>
     </div>
