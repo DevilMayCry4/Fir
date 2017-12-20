@@ -17,7 +17,7 @@ from biplist import *
 import base64
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-UploadDir = os.path.join(os.path.join(current_dir,'static'),'data.sqlite')
+UploadDir = os.path.join(os.path.join(current_dir,'static'),'upload')
 
 app = Flask(__name__)
 app.secret_key = '2323432'
@@ -81,7 +81,7 @@ def upload():
     if request.method == 'GET':
         return render_template('upload.html', user=current_user)
     else:
-        file = request.files[0]
+        file = request.files['file_data']
         filename = secure_filename(file.filename)
         file.save(os.path.join(UploadDir,filename))
         return  jsonify({'code': 200, 'msg': '上传成功'})
