@@ -7,23 +7,29 @@ from flask_login import login_user
 from flask_login import LoginManager
 from flask_login import login_required
 from flask_login import current_user
-from flask import g
+
+from flask_uploads import  *
 from User import User
 from DataBase import DataBase
 import os
-from werkzeug.utils import secure_filename
 
 from biplist import *
 import base64
 
+
+def defualtDest(app):
+    return UploadDir
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 UploadDir = os.path.join(os.path.join(current_dir,'static'),'upload')
+attachement = UploadSet('ipa',('ipa','apk'),default_dest=defualtDest)
 
 app = Flask(__name__)
 app.secret_key = '2323432'
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
+
 
 
 @app.teardown_appcontext
@@ -82,8 +88,7 @@ def upload():
         return render_template('upload.html', user=current_user)
     else:
         file = request.files['file_data']
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(UploadDir,filename))
+        filename = attachement.save(file)
         return  jsonify({'code': 200, 'msg': '上传成功'})
 
 
@@ -95,9 +100,10 @@ def parse():
     i = readPlistFromString(base64.b64decode(content))
 
     return jsonify({'code': 200,
-                    'CFBundleDisplayName': i['CFBundleDisplayName'],
-                    'CFBundleShortVersionString': i['CFBundleShortVersionString'],
-                    'CFBundleVersion':i['CFBundleVersion']})
+                    'name': i['CFBundleDisplayName'],
+                    'shortversion': i['CFBundleShortVersionString'],
+                    'version':i['CFBundleVersion'],
+                    'id':i['CFBundleIdentifier']})
 
 
 @login_manager.user_loader
@@ -106,5 +112,8 @@ def load_user(user_id):
 
 
 if __name__ == '__main__':
+    configure_uploads(app, (attachement))
     app.run(debug=True)
+
+
     # app.run(debug=True,ssl_context=('/Users/virgil/Desktop/test1/server.crt', '/Users/virgil/Desktop/test1/server.key'))

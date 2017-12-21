@@ -47,3 +47,7 @@ class DataBase(object):
     @staticmethod
     def register(username,password):
         return DataBase.excute_db('insert into user (username,password) values (?,?)',args=(username,password))
+
+    @staticmethod
+    def saveApp(bundleId,name,version,info,path,author):
+        return DataBase.excute_db('insert into app (bundleId,name,version,info,path,author) values (?,?,?,?,?,?)', args=(bundleId,name,version,info,path,author))

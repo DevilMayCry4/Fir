@@ -2,17 +2,97 @@
 {% block title %}上传{% endblock %}
 {% block head %}
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/fileinput.min.css') }}"/>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/button.css') }}"/>
+
     <script src="{{ url_for('static', filename='js/fileinput.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fileinput_locale_zh.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jszip.min.js') }}"></script>
 {% endblock %}
 {% block body %}
+
+    <div class="modal fade" id="confirmMoal" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="alertModelBody">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="nameinput">应用名</label>
+                                <input type="text" name="nameinput" class="form-control" id="nameinput">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="versioninput">版本</label>
+                                <input type="text" name="versioninput" class="form-control" id="versioninput">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="idinput">应用id</label>
+                                <input type="text" name="idinput" class="form-control" id="idinput">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="buildinput">build number</label>
+                                <input type="text" name="buildinput" class="form-control" id="buildinput">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="infoinput">更新信息</label>
+                                <textarea type="text"
+                                          class="form-control"  rows="8"></textarea>
+                            </div>
+                        </div>
+
+                         <div class="d-flex justify-content-around">
+                <button type="button" class="btn btn-outline-info uploadbutton"
+                        data-dismiss="modal" onclick="confirmClick()">上传
+                </button>
+                <button type="button" class=" btn btn-danger uploadbutton"
+                        data-dismiss="modal">关闭
+                </button>
+            </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </div><!-- /.modal-content -->
+
+
+
+
     <div class="alert alert-danger" style="display: none" id="alert_tip"></div>
     <div class="container">
-
         <label class="control-label">选择文件</label>
         <input id="input" type="file" class="file">
         <script>
+            $('#confirmMoal').on('hidden.bs.modal', function () {
+                window.location.reload();
+            });
+
+            function confirmClick() {
+
+            }
+
             let uploadInput = $("#input");
             uploadInput.fileinput({
                 language: "zh",
@@ -60,12 +140,18 @@
                                 // handle a successful response
                                 success: function (json) {
                                     if (json['code'] == 200) {
-                                        uploadInput.fileinput("upload");
+                                        {#
+                                                                      uploadInput.fileinput("upload");#}
+                                        $('#versioninput').val(json['shortversion']);
+                                        $('#nameinput').val(json['name']);
+                                        $('#buildinput').val(json['version']);
+                                        $('#idinput').val(json['id']);
+                                        $('#confirmMoal').modal('show');
+
                                     }
                                     else {
                                         showAlert(json.msg);
                                     }
-
                                 },
 
                                 // handle a non-successful response
@@ -78,10 +164,7 @@
                         });
                     }
                 };
-
-
                 reader.readAsBinaryString(file);
-
 
             });
         </script>
