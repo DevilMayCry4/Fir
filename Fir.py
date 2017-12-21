@@ -89,6 +89,8 @@ def upload():
     else:
         file = request.files['file_data']
         filename = attachement.save(file)
+        form = request.form
+        DataBase.saveApp(form['id'],form['name'],form['version'],form['info'],filename,current_user.user_id)
         return  jsonify({'code': 200, 'msg': '上传成功'})
 
 

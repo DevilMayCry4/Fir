@@ -28,3 +28,8 @@ function validateEmail(email) {
 var patten = /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/;
 return patten.test(val);
  }
+
+ function isEmpytString(str) {
+     return str === undefined || str.length == 0;
+
+ }
