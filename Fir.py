@@ -8,10 +8,11 @@ from flask_login import LoginManager
 from flask_login import login_required
 from flask_login import current_user
 
-from flask_uploads import  *
+from flask_uploads import *
 from User import User
 from DataBase import DataBase
 import os
+from flask import g
 
 from biplist import *
 import base64
@@ -42,7 +43,7 @@ def close_connection(exception):
 @app.route('/')
 @app.route('/home')
 def home():
-    return str(DataBase.getAllApplication())
+    return render_template('home.html',user=current_user)
 
 
 @app.route('/about')

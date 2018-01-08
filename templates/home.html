@@ -1,8 +1,215 @@
 {% extends "base.html" %}
+{% block head %}
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/home.css') }}"/>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/fileinput.min.css') }}"/>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/button.css') }}"/>
+    <script src="{{ url_for('static', filename='js/fileinput.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/fileinput_locale_zh.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jszip.min.js') }}"></script>
+{% endblock %}
 {% block title %}首页{% endblock %}
 {% block body %}
-    <button  onclick="test()">test</button>
-    <script>function test() {
-       alertWithTitleAndBody('tt','xassxa');
-    }</script>
+    <div class="row" style="margin-top: 30px">
+        <div class="col-md-3 justify-content-center   d-flex flex-row align-items-center home-container"
+             style="padding: 5px;min-width: 220px;">
+            <input id="input" type="file" class="file"/>
+        </div>
+        <div class="col-md-3 justify-content-center   d-flex flex-row align-items-center home-container"
+             style="padding: 5px;min-width: 220px;">
+            <div class="" style="background-color: #0b2e13;height: 300px;width: 200px">
+            </div>
+        </div>
+        <div class="col-md-3 justify-content-center   d-flex flex-row align-items-center home-container"
+             style="padding: 5px;min-width: 220px;">
+            <div class="" style="background-color: #0b2e13;height: 300px;width: 200px">
+            </div>
+        </div>
+        <div class="col-md-3 justify-content-center   d-flex flex-row align-items-center home-container"
+             style="padding: 5px;min-width: 220px;">
+            <div class="" style="background-color: #0b2e13;height: 300px;width: 200px">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="confirmMoal" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="alertModelBody">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="nameinput">应用名</label>
+                                <input type="text" name="nameinput" class="form-control" id="nameinput">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="versioninput">版本</label>
+                                <input type="text" name="versioninput" class="form-control" id="versioninput">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="idinput">应用id</label>
+                                <input type="text" name="idinput" class="form-control" id="idinput">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="buildinput">build number</label>
+                                <input type="text" name="buildinput" class="form-control" id="buildinput">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <div class="input-group">
+                                <label class="col-sm-4 control-label" for="infoinput">更新信息</label>
+                                <textarea type="text" id="infoinput"
+                                          class="form-control" rows="8"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-around">
+                            <button type="button" class="btn btn-outline-info uploadbutton"
+                                    onclick="confirmClick()">上传
+                            </button>
+                            <button type="button" class=" btn btn-danger uploadbutton"
+                                    data-dismiss="modal">关闭
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </div><!-- /.modal-content -->
+
+
+
+
+    <div class="alert alert-danger" style="display: none" id="alert_tip"></div>
+    <div class="container">
+
+        <script>
+            let uploadInput = $("#input");
+
+            $('#confirmMoal').on('hidden.bs.modal', function () {
+                window.location.reload();
+            });
+
+            function confirmClick() {
+                if (isEmpytString($('#infoinput').val())) {
+                    alert('请输入更新内容');
+                } else {
+                    uploadInput.fileinput("upload");
+                }
+            }
+
+
+            uploadInput.fileinput({
+                language: "zh",
+                uploadUrl: "upload",
+                allowedFileExtensions: ["ipa", "apk"],
+                uploadAsync: false,
+                showUpload: false, // hide upload button
+                showRemove: false, // hide remove button
+                minFileCount: 1,
+                maxFileCount: 1,
+                uploadExtraData: function () {  // callback example
+                    var out = {};
+                    out['shortversion'] = $('#versioninput').val();
+                    out['name'] = $('#nameinput').val();
+                    out['version'] = $('#buildinput').val();
+                    out['id'] = $('#idinput').val();
+                    out['info'] = $('#infoinput').val();
+                    return out;
+                }
+            }).on('filebatchselected', function (event, files) {
+
+                var file = files[0];
+                var start = 0;
+                var stop = file.size - 1;
+
+                var reader = new FileReader();
+
+                // If we use onloadend, we need to check the readyState.
+                reader.onloadend = function (evt) {
+                    if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+                        var new_zip = new JSZip();
+                        new_zip.loadAsync(evt.srcElement.result).then(function (zip) {
+                            let regex = new RegExp('.\.app/Info\.plist');
+                            let plistKey = undefined;
+                            for (let key in zip.files) {
+                                if (regex.test(key)) {
+                                    plistKey = key;
+                                    break;
+                                }
+                            }
+                            if (plistKey !== undefined) {
+                                return zip.file(plistKey).async("base64");
+                            }
+
+                        }).then(function (plist) {
+                            $.ajax({
+                                url: "./parse", // the endpoint
+                                type: "POST", // http method
+                                data: {
+                                    content: plist,
+                                    platom: 'ios'
+                                }, // data sent with the post request
+
+                                // handle a successful response
+                                success: function (json) {
+                                    if (json['code'] == 200) {
+                                        {#
+                                                                      uploadInput.fileinput("upload");#}
+                                        $('#versioninput').val(json['shortversion']);
+                                        $('#nameinput').val(json['name']);
+                                        $('#buildinput').val(json['version']);
+                                        $('#idinput').val(json['id']);
+                                        $('#confirmMoal').modal('show');
+
+                                    }
+                                    else {
+                                        showAlert(json.msg);
+                                    }
+                                },
+
+                                // handle a non-successful response
+                                error: function (xhr, errmsg, err) {
+                                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                                }
+                            });
+                        }).catch((r) => {
+                            showAlert('解析ipa失败');
+                        });
+                    }
+                };
+                reader.readAsBinaryString(file);
+
+            }).on('filebatchuploadsuccess', function (event, data) {
+                if (data['code'] == 200) {
+                    window.location.href = '../home';
+                }
+                else {
+                    showAlert(data.msg);
+                }
+            });
+        </script>
+    </div>
 {% endblock %}
